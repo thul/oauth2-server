@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.1.2 (released 2015-01-01)
+
+* Remove side-effects in hash_equals() implementation (Issue #290)
+
+## 4.1.1 (released 2014-12-31)
+
+* Changed `symfony/http-foundation` dependency version to `~2.4` so package can be installed in Laravel `4.1.*`
+
+## 4.1.0 (released 2014-12-27)
+
+* Added MAC token support (Issue #158)
+* Fixed example init code (Issue #280)
+* Toggle refresh token rotation (Issue #286)
+* Docblock fixes
+
 ## 4.0.5 (released 2014-12-15)
 
 * Prevent duplicate session in auth code grant (Issue #282)

@@ -49,6 +49,13 @@ class RefreshTokenGrant extends AbstractGrant
     }
 
     /**
+     * Rotate token (default = true)
+     *
+     * @var integer
+     */
+    protected $refreshTokenRotate = true;
+
+    /**
      * Set the TTL of the refresh token
      *
      * @param int $refreshTokenTTL
@@ -68,6 +75,25 @@ class RefreshTokenGrant extends AbstractGrant
     public function getRefreshTokenTTL()
     {
         return $this->refreshTokenTTL;
+    }
+
+    /**
+     * Set the rotation boolean of the refresh token
+     * @param bool $refreshTokenRotate
+     */
+    public function setRefreshTokenRotation($refreshTokenRotate = true)
+    {
+        $this->refreshTokenRotate = $refreshTokenRotate;
+    }
+
+    /**
+     * Get rotation boolean of the refresh token
+     *
+     * @return bool
+     */
+    public function shouldRotateRefreshTokens()
+    {
+        return $this->refreshTokenRotate;
     }
 
     /**
@@ -159,8 +185,9 @@ class RefreshTokenGrant extends AbstractGrant
         $this->server->getTokenType()->setParam('access_token', $newAccessToken->getId());
         $this->server->getTokenType()->setParam('expires_in', $this->getAccessTokenTTL());
 
-        // Expire the old refresh token
-        $oldRefreshToken->expire();
+        if ($this->shouldRotateRefreshTokens()) {
+            // Expire the old refresh token
+            $oldRefreshToken->expire();
 
         // Generate a new refresh token
         $newRefreshToken = $this->entityFactory->buildRefreshTokenEntity();
@@ -169,7 +196,10 @@ class RefreshTokenGrant extends AbstractGrant
         $newRefreshToken->setAccessToken($newAccessToken);
         $newRefreshToken->save();
 
-        $this->server->getTokenType()->setParam('refresh_token', $newRefreshToken->getId());
+            $this->server->getTokenType()->setParam('refresh_token', $newRefreshToken->getId());
+        } else {
+            $this->server->getTokenType()->setParam('refresh_token', $oldRefreshToken->getId());
+        }
 
         return $this->server->getTokenType()->generateResponse();
     }
